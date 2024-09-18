@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import gradio as gr
+from scipy.interpolate import Rbf
 
 # 初始化全局变量，存储控制点和目标点
 points_src = []
@@ -50,6 +51,28 @@ def point_guided_deformation(image, source_pts, target_pts, alpha=1.0, eps=1e-8)
     
     warped_image = np.array(image)
     ### FILL: 基于MLS or RBF 实现 image warping
+    
+    h, w = image.shape[:2]
+    src=np.array(source_pts)
+    tgt=np.array(target_pts)
+    n=src.shape[0]
+    A=np.ones((n,n))
+    y=np.zeros((n,2))
+    for i in range(n):
+        A[:,i]=1/(np.sum((src-src[i])**2,axis=1)+1e3)
+
+    y=tgt-src
+    coef=np.linalg.solve(A,y)
+
+    for i in range(h):
+        for j in range(w):
+            x,y=j,i
+            b=1/(np.sum((src-np.array([x,y]))**2,axis=1)+1e3)
+            newxy=b@coef+np.array([x,y])
+            newx,newy=newxy[1],newxy[0]
+            newx=int(np.clip(newx,0,h-1))
+            newy=int(np.clip(newy,0,w-1))
+            warped_image[newx,newy]=image[y,x]
 
     return warped_image
 
