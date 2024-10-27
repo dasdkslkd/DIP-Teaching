@@ -2,6 +2,7 @@ import gradio as gr
 from PIL import ImageDraw
 import numpy as np
 import torch
+from skimage.draw import polygon
 
 # Initialize the polygon state
 def initialize_polygon():
@@ -109,6 +110,11 @@ def create_mask_from_points(points, img_h, img_w):
     ### FILL: Obtain Mask from Polygon Points. 
     ### 0 indicates outside the Polygon.
     ### 255 indicates inside the Polygon.
+    if len(points) > 0:
+        points = np.array(points)
+        rr, cc = polygon(points[:, 1], points[:, 0], mask.shape)
+        mask[rr, cc] = 255
+
 
     return mask
 
@@ -129,6 +135,21 @@ def cal_laplacian_loss(foreground_img, foreground_mask, blended_img, background_
     loss = torch.tensor(0.0, device=foreground_img.device)
     ### FILL: Compute Laplacian Loss with https://pytorch.org/docs/stable/generated/torch.nn.functional.conv2d.html.
     ### Note: The loss is computed within the masks.
+
+    kernel = torch.tensor([[0, 1, 0], [1, -4, 1], [0, 1, 0]], device=foreground_img.device).float().unsqueeze(0).unsqueeze(0)
+    kernel = kernel.expand(1, 3, 3, 3)
+    # Compute Laplacian of the foreground image
+    laplacian_foreground = torch.nn.functional.conv2d(foreground_img, kernel, padding=1)
+    foreground_mask = foreground_mask.bool()
+    laplacian_foreground = laplacian_foreground[foreground_mask].flatten()
+
+    # Compute Laplacian of the blended image
+    laplacian_blended = torch.nn.functional.conv2d(blended_img, kernel, padding=1)
+    background_mask = background_mask.bool()
+    laplacian_blended = laplacian_blended[background_mask].flatten()
+
+    # Calculate the loss
+    loss = torch.nn.functional.mse_loss(laplacian_blended, laplacian_foreground)
 
     return loss
 
@@ -179,7 +200,7 @@ def blending(foreground_image_original, background_image_original, dx, dy, polyg
     optimizer = torch.optim.Adam([blended_img], lr=1e-3)
 
     # Optimization loop
-    iter_num = 10000
+    iter_num = 1000
     for step in range(iter_num):
         blended_img_for_loss = blended_img.detach() * (1. - bg_mask_tensor) + blended_img * bg_mask_tensor  # Only blending in the mask region
 
