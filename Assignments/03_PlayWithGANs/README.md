@@ -36,10 +36,15 @@ To prepare DragGAN
 
 ```DragGAN
 git clone https://github.com/XingangPan/DragGAN.git
-cd DragGAN
+```
+
+Then copy the files and directory under 2 to DragGAN root dir and replace all files
+
+To setup environment
+
+```env
 conda env create -f environment.yml
 conda activate stylegan3
-pip install -r requirements.txt
 ```
 
 To download pretrained model
@@ -48,18 +53,14 @@ To download pretrained model
 python scripts/download_model.py
 ```
 
-To prepare face alignment
-
-```face alignment
-pip install face_alignment
-```
-
-Then copy the files and directory under 2 to DragGAN root dir and replace all files
-
 To run DragGAN+face_alignment
 
 ```run
 scripts/gui.sh
+```
+or
+```
+scripts/gui.bat
 ```
 
 ## Results
