@@ -115,10 +115,31 @@ class DragWidget:
                     preds=preds[0]
                     self.feature_points=[pred[:2] for pred in preds]
 
+                # imgui.same_line()
+                # if imgui_utils.button('Print points', width=viz.button_w, enabled='image' in viz.result):
+                #     print(np.array(self.feature_points).shape)
+                #     print(np.array(self.points).shape)
+
                 imgui.same_line()
-                if imgui_utils.button('Print points', width=viz.button_w, enabled='image' in viz.result):
-                    print(np.array(self.feature_points).shape)
-                    print(np.array(self.points).shape)
+                if imgui_utils.button('close mouse', width=viz.button_w, enabled='image' in viz.result):
+                    fa = face_alignment.FaceAlignment(face_alignment.LandmarksType.TWO_D, flip_input=False)
+                    preds=fa.get_landmarks(self.viz.result.image[:,:,:3])
+                    preds=preds[0]
+                    self.feature_points=[pred[:2] for pred in preds]
+
+                    mouse_up=[int(self.feature_points[62][1]),int(self.feature_points[62][0])]
+                    mouse_down=[int(self.feature_points[66][1]),int(self.feature_points[66][0])]
+                    mouse_target=[int(self.feature_points[66][1]+self.feature_points[62][1])/2,int(self.feature_points[66][0]+self.feature_points[62][0])/2]
+                    self.reset_point()
+                    reset = True
+                    self.points.append(mouse_up)
+                    self.points.append(mouse_down)
+                    self.targets.append(mouse_target)
+                    self.targets.append(mouse_target)
+
+                    self.is_drag = True
+                    if len(self.points) > len(self.targets):
+                        self.points = self.points[:len(self.targets)]
 
                 imgui.text(' ')
                 imgui.same_line(viz.label_w)
