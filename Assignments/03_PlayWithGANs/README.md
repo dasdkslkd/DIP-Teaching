@@ -75,5 +75,7 @@ scripts/gui.bat
 ### DragGAN + face alignment
 
 
-https://github.com/user-attachments/assets/9c5004d9-7ac7-4c9f-9bc5-5f3a06261a0a
+https://github.com/user-attachments/assets/9e5f6030-dde7-4c5b-a97a-b77349880afc
+
+
 
