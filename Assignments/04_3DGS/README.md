@@ -26,3 +26,7 @@ __Remark:cuda version should be at or under 11.8__
 ## Results
 
 ### 
+Trained model prediction for every dataset's images
+
+https://github.com/user-attachments/assets/78163042-7e2a-47b3-a661-42a6b000a2aa
+
